@@ -55,6 +55,7 @@ int main(void)
         /* ikuinen silmukka */
         while (1) {
 
+			updateScreen();
             checkInput();
 
 		}
