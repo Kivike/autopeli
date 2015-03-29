@@ -1,7 +1,6 @@
-<<<<<<< HEAD
-=======
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 #include "lcd.h"
 
 void init(void) {
@@ -25,8 +24,8 @@ void init(void) {
         TIMSK |= (1 << OCIE1A);
 
         /* asetetaan OCR1A rekisterin arvoksi 0x3e (~250hz) */
-        OCR1AH = 0x00;
-        OCR1AL = 0x3e;
+        OCR1AH = 0x01;
+        OCR1AL = 0x36;
 
         /* käynnistä ajastin ja käytä kellotaajuutena (16 000 000 / 1024) Hz */
         TCCR1B |= (1 << CS12) | (1 << CS10);
@@ -46,26 +45,39 @@ void init(void) {
 
 }
 
+int updateCounter = 0;
+
+update(){
+	updateCounter++;
+	if(updateCounter == 1000){
+		moveCars();
+		generateCars();
+		updateScreen();
+		updateCounter = 0;
+	}
+}
+
 int main(void)
 {
 
 		/* alusta laitteen komponentit */
 		init();
+		initializeScreen();
 
         /* ikuinen silmukka */
         while (1) {
-
-			updateScreen();
+			_delay_ms(10);
+			
             checkInput();
+			update();
 
 		}
 }
+
+
 
 ISR(TIMER1_COMPA_vect) {
 
 	/* vaihdetaan kaiutin pinnien tilat XOR operaatiolla */
  	PORTE ^= (1 << PE4) | (1 << PE5);
 }
-
-
->>>>>>> 616301b97c699b26b22013d646744ce5d23cb458

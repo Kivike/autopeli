@@ -1,6 +1,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "lcd.h"
+//#include "lcd.h"
 
 /*
 DDRA
@@ -16,7 +16,7 @@ void checkInput() {
     if (PINA & (1 << PA0)) {
         // Nappia 0 ei paineta
     } else {
-        // Nappia 0 painetaan
+       	moveRight(); // Nappia 0 painetaan
     }
 
     if (PINA & (1 << PA2)) {
@@ -28,6 +28,6 @@ void checkInput() {
     if (PINA & (1 << PA4)) {
         // Nappia 4 ei paineta
     } else {
-        // Nappia 4 painetaan
+        moveLeft();// Nappia 4 painetaan
     }
 }
