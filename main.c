@@ -68,9 +68,11 @@ int main(void)
         while (1) {
 			_delay_ms(10);
 			
-            checkInput();
-			update();
-
+			if(!getGameOver()){
+				checkInput();
+				update();
+			}
+          	
 		}
 }
 
