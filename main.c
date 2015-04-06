@@ -68,15 +68,13 @@ int main(void)
         while (1) {
 			_delay_ms(10);
 			
-			if(!getGameOver()){
+			if(!gameIsOver()){
 				checkInput();
 				update();
 			}
           	
 		}
 }
-
-
 
 ISR(TIMER1_COMPA_vect) {
 

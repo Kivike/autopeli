@@ -1,14 +1,12 @@
 #include "lcd.h"
 
-#define true 1;
-#define false 0;
-
-char CAR;;
+char CAR;
 char PLAYER;
+char FLYING;
 int journeyCounter = 0;
 char screenTop[16];
 char screenBottom[16];
-bool gameIsOver = false;
+int gameIsOver = 0;
 
 
 void updateScreen(){
@@ -26,6 +24,14 @@ void updateScreen(){
 	for(i = 0; i < 40; i++){
 		lcd_write_data(screenBottom[i]);
 	}
+
+	if(screenTop[15] == FLYING){
+		screenTop[15] = PLAYER;
+	}
+
+	if(screenBottom[15] == FLYING){
+		screenBottom[15] = PLAYER;	
+	}
 }
 
 void initializeScreen(){
@@ -36,8 +42,7 @@ void initializeScreen(){
 
 	CAR = 'C';
 	PLAYER = 'X';
-
-	
+	FLYING = 'F';	
 }
 
 void moveRight(){
@@ -48,6 +53,16 @@ void moveRight(){
 void moveLeft(){
 	screenTop[15] = ' ';
 	screenBottom[15] = PLAYER;
+}
+
+void jump(){
+	if(screenTop[15] == PLAYER){
+		screenTop[15] == FLYING;
+	}
+	
+	if(screenBottom[15] == PLAYER){
+		screenBottom[15] == FLYING;
+	}
 }
 
 void generateCars(){
@@ -95,9 +110,9 @@ void gameOver(){
 	for(int i = 0; i < sizeof(gameOver); i++){
 		screenTop[i] = gameOver[i];
 	}
-	gameIsOver = true;
+	gameIsOver = 1;
 }
 
-bool getGameOver(){
+int GameIsOver(){
 	return gameIsOver;
 }

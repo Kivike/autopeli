@@ -12,7 +12,7 @@ void checkInput() {
     if (PINA & (1 << PA2)) {
         // Nappia 2 ei paineta
     } else {
-        // Nappia 2 painetaan
+        //jump();// Nappia 2 painetaan
     }
 
     if (PINA & (1 << PA4)) {
