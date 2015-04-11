@@ -45,35 +45,24 @@ void init(void) {
 
 }
 
-int updateCounter = 0;
-
-update(){
-	updateCounter++;
-	if(updateCounter == 1000){
-		moveCars();
-		generateCars();
-		updateScreen();
-		updateCounter = 0;
-	}
-}
-
 int main(void)
 {
 
-		/* alusta laitteen komponentit */
-		init();
-		initializeScreen();
+	/* alusta laitteen komponentit */
+	init();
+	initializeScreen();
 
-        /* ikuinen silmukka */
-        while (1) {
-			_delay_ms(10);
-			
-			if(!gameIsOver()){
-				checkInput();
-				update();
-			}
-          	
+    /* ikuinen silmukka */
+    while (1) {
+		_delay_ms(10);
+		
+		if(!gameIsOver()){
+       		checkInput();
+			update();
+		}else{
+			checkInputInGameOver();
 		}
+	}
 }
 
 ISR(TIMER1_COMPA_vect) {
