@@ -88,7 +88,13 @@ void updateScreen(){
 	screenBottom[1] = (((int)'0')+(acceleration / 10));
 
 	for(i = 0; i < 40; i++){
-		lcd_write_data(screenTop[i]);
+		//Draw custom characters
+		if(screenTop[i] == PLAYER){
+			lcd_CGRAM(0x3C);
+			lcd_write_data(0xA0);
+		}else{
+			lcd_write_data(screenTop[i]);
+		}
 	}
 
 	for(i = 0; i < 40; i++){
