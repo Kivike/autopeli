@@ -1,44 +1,104 @@
-	#include "lcd.h"
+#include "lcd.h"
+#include "memory.h"
+#include <util/delay.h>
 
-	const int FALSE = 0;
-	const int TRUE = 1;
+const int FALSE = 0;
+const int TRUE = 1;
 
-	char screenTop[16];
-	char screenBottom[16];
+char screenTop[16];
+char screenBottom[16];
 
-	float journeyCounter = 0;
-	int gameOverBool;
-	
-	const char CAR = 'C';
-	const char FAST_CAR = 'F';
-	const char RUBBLE = 'R';
-	const char PLAYER = 'P';
-	const char FLYING = 'J';
-	const int jumpLength = 4;
+float journeyCounter = 0;
+int gameOverBool;
 
-	//Don't spawn two doubles in row
-	int lastCarSpawnedWasDouble;
 
-	int timeInAir = 0;
+const char CAR = 0x01;
+const char FAST_CAR = 0x02;
+const char RUBBLE = 0x03;
+const char PLAYER = 0x00;
+const char FLYING = 0x04;
 
-	int updateCounter = 0;
-	const int nthUpdateInit = 2000;
-	int nthUpdate;
-	int acceleration = 0;
+const int jumpLength = 4;
 
-	int accelerateNextUpdateBoolean;
-	int decelerateNextUpdateBoolean;
+//Don't spawn two doubles in row
+int lastCarSpawnedWasDouble;
+
+int timeInAir = 0;
+
+int updateCounter = 0;
+const int nthUpdateInit = 2000;
+int nthUpdate;
+int acceleration = 0;
+
+int accelerateNextUpdateBoolean;
+int decelerateNextUpdateBoolean;
 
 void initializeScreen(){
 	for(int i = 0; i<16; i++){
 		screenTop[i] = ' ';
 		screenBottom[i] = ' ';
 	}
+
+	
 	gameOverBool = FALSE;
 	lastCarSpawnedWasDouble = FALSE;
 	nthUpdate = nthUpdateInit;
 	accelerateNextUpdateBoolean = FALSE;
 	decelerateNextUpdateBoolean = FALSE;
+
+	//PLAYER
+	lcd_write_ctrl(0x40);
+	lcd_write_data(0b00000);
+	lcd_write_data(0b00000);
+	lcd_write_data(0b11111);
+	lcd_write_data(0b10111);
+	lcd_write_data(0b10111);
+	lcd_write_data(0b11111);
+	lcd_write_data(0b00000);
+	lcd_write_data(0b00000);
+
+	//CAR
+	lcd_write_data(0b00000);
+	lcd_write_data(0b00000);
+	lcd_write_data(0b11111);
+	lcd_write_data(0b11101);
+	lcd_write_data(0b11101);
+	lcd_write_data(0b11111);
+	lcd_write_data(0b00000);
+	lcd_write_data(0b00000);
+
+	//FAST_CAR
+	lcd_write_data(0b00000);
+	lcd_write_data(0b00000);
+	lcd_write_data(0b11001);
+	lcd_write_data(0b11111);
+	lcd_write_data(0b11111);
+	lcd_write_data(0b11001);
+	lcd_write_data(0b00000);
+	lcd_write_data(0b00000);
+
+	//RUBBLE
+	lcd_write_data(0b00000);
+	lcd_write_data(0b10110);
+	lcd_write_data(0b00011);
+	lcd_write_data(0b00111);
+	lcd_write_data(0b01111);
+	lcd_write_data(0b00111);
+	lcd_write_data(0b00010);
+	lcd_write_data(0b00000);
+
+	//JUMP
+	lcd_write_data(0b01100);
+	lcd_write_data(0b01100);
+	lcd_write_data(0b11111);
+	lcd_write_data(0b10111);
+	lcd_write_data(0b10111);
+	lcd_write_data(0b11111);
+	lcd_write_data(0b01100);
+	lcd_write_data(0b01100);
+	lcd_write_ctrl(0x80);
+
+
 }
 
 update(){
@@ -84,17 +144,9 @@ void updateScreen(){
 
 	screenTop[0] = (((int)'0')+((int)journeyCounter % 100 / 10));
 	screenTop[1] = (((int)'0')+((int)journeyCounter % 10));
-	screenBottom[0] = (((int)'0')+(acceleration % 10));
-	screenBottom[1] = (((int)'0')+(acceleration / 10));
 
 	for(i = 0; i < 40; i++){
-		//Draw custom characters
-		if(screenTop[i] == PLAYER){
-			lcd_CGRAM(0x3C);
-			lcd_write_data(0xA0);
-		}else{
-			lcd_write_data(screenTop[i]);
-		}
+		lcd_write_data(screenTop[i]);	
 	}
 
 	for(i = 0; i < 40; i++){
@@ -135,9 +187,9 @@ void moveLeft(){
 
 int playerNotFlying(){
 	if(screenTop[15] == FLYING || screenBottom[15] == FLYING){
-		return 0;
+		return FALSE;
 	}
-	return 1;
+	return TRUE;
 }
 
 void generateCars(){
@@ -260,10 +312,7 @@ void jump(){
 }
 
 void gameOver(){
-	char gameOver[] = "GAME OVER";
-	for(int i = 0; i < sizeof(gameOver); i++){
-		screenTop[i] = gameOver[i];
-	}
+
 	gameOverBool = TRUE;
 }
 
@@ -275,5 +324,5 @@ void resetGame(){
 	initializeScreen();
 	journeyCounter = 0;
 	gameOverBool = FALSE;
-	nthUpdate = 1000;
+	nthUpdate = nthUpdateInit;
 }

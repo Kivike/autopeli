@@ -60,7 +60,8 @@ int main(void)
        		checkInput();
 			update();
 		}else{
-			checkInputInGameOver();
+			gameOverWithScore();
+			//checkInputInGameOver();
 		}
 	}
 }
