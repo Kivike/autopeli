@@ -19,10 +19,21 @@ void checkInput() {
        	moveRight(); // Nappia 0 painetaan
     }
 
+	if (PINA & (1 << PA1)) {
+       	// Nappia 1 ei paineta
+    } else { 
+		// Nappia 1 painetaan
+		accelerateNextUpdate();
+    }
+
     if (PINA & (1 << PA2)) {
         // Nappia 2 ei paineta
     } else {
         jump();// Nappia 2 painetaan
+    }
+
+	if (PINA & (1 << PA3)) {
+        decelerateNextUpdate();
     }
 
     if (PINA & (1 << PA4)) {

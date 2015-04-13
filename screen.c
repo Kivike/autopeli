@@ -10,18 +10,24 @@
 	int gameOverBool;
 	
 	const char CAR = 'C';
-	const char FAST_CAR = 'K';
-	const char PLAYER = 'X';
-	const char FLYING = 'F';
+	const char FAST_CAR = 'F';
+	const char RUBBLE = 'R';
+	const char PLAYER = 'P';
+	const char FLYING = 'J';
 	const int jumpLength = 4;
 
 	//Don't spawn two doubles in row
 	int lastCarSpawnedWasDouble;
+
 	int timeInAir = 0;
 
 	int updateCounter = 0;
-	const int nthUpdateInit = 1000;
+	const int nthUpdateInit = 2000;
 	int nthUpdate;
+	int acceleration = 0;
+
+	int accelerateNextUpdateBoolean;
+	int decelerateNextUpdateBoolean;
 
 void initializeScreen(){
 	for(int i = 0; i<16; i++){
@@ -31,21 +37,40 @@ void initializeScreen(){
 	gameOverBool = FALSE;
 	lastCarSpawnedWasDouble = FALSE;
 	nthUpdate = nthUpdateInit;
+	accelerateNextUpdateBoolean = FALSE;
+	decelerateNextUpdateBoolean = FALSE;
 }
 
 update(){
 	updateCounter++;
-	if(updateCounter == nthUpdate / 2){
+
+	int updateStep = nthUpdate - acceleration;
+	
+	//so you cant accelerate past 0 steps and go over the 
+	if(updateStep < 10) updateStep = 10;
+
+	if(updateCounter == updateStep / 4){
 		moveCars(FAST_CAR);
 		updateScreen();
 	}
-	if(updateCounter == nthUpdate){
-		moveCars(CAR);
-		moveCars(FAST_CAR);
-		generateCars();
+	if(updateCounter == updateStep / 2){
+		everySecondUpdate();
 		updateScreen();
+		//makes sure you don't step over with accelerating
+	}
+	if(updateCounter >= updateStep){
+		everySecondUpdate();
+		moveCars(RUBBLE);
 		updateCounter = 0;
+		updateScreen();	
 	}
+}
+
+void everySecondUpdate(){
+	moveCars(FAST_CAR);
+	moveCars(CAR);	
+	generateCars();	
+	changeAcceleration();
 }
 
 void updateScreen(){
@@ -59,6 +84,8 @@ void updateScreen(){
 
 	screenTop[0] = (((int)'0')+((int)journeyCounter % 100 / 10));
 	screenTop[1] = (((int)'0')+((int)journeyCounter % 10));
+	screenBottom[0] = (((int)'0')+(acceleration % 10));
+	screenBottom[1] = (((int)'0')+(acceleration / 10));
 
 	for(i = 0; i < 40; i++){
 		lcd_write_data(screenTop[i]);
@@ -146,9 +173,9 @@ void moveCars(char car){
 					gameOver();
 				}else if(screenTop[i + 1] == FLYING){
 					screenTop[i + 1] = FLYING;
-				}else if(screenTop[i + 1] == CAR){
-					//explosion when 2 cars collide
-					screenTop[i + 1] = ' ';
+				}else if(screenTop[i + 1] == CAR || screenTop[i + 1] == RUBBLE){
+					//explosion when 2 cars or car and rubble collide
+					screenTop[i + 1] = RUBBLE;
 				}else{
 					screenTop[i + 1] = car;
 				}			
@@ -164,14 +191,53 @@ void moveCars(char car){
 					gameOver();
 				}else if(screenBottom[i + 1] == FLYING){
 					screenBottom[i + 1] = FLYING;
-				}else if(screenBottom[i + 1] == CAR){
-					//explosion when 2 cars collide
-					screenBottom[i + 1] = ' ';
+				}else if(screenBottom[i + 1] == CAR || screenBottom[i + 1] == RUBBLE){
+					//explosion when 2 cars or car and rubble collide
+					screenBottom[i + 1] = RUBBLE;
 				}else{
 					screenBottom[i + 1] = car;
 				}	
 			}
 		}
+	}
+}
+
+void accelerate(){
+	acceleration+=100;
+
+	//so accelerating doesn't skip events.
+	updateCounter-=100;
+}
+
+void decelerate(){
+	if(acceleration >= 100){
+		acceleration-=100;
+		//so accelerating doesn't skip events.
+		updateCounter+=100;
+	}else{
+		//so accelerating doesn't skip events.
+		updateCounter+=acceleration;
+		acceleration=0;
+	}
+}
+
+void accelerateNextUpdate(){
+	accelerateNextUpdateBoolean = TRUE;
+}
+
+void decelerateNextUpdate(){
+	decelerateNextUpdateBoolean = TRUE;
+}
+
+void changeAcceleration(){
+	if(accelerateNextUpdateBoolean == TRUE){
+		accelerateNextUpdateBoolean = FALSE;
+		accelerate();
+	}
+
+	if(decelerateNextUpdateBoolean == TRUE){
+		decelerateNextUpdateBoolean = FALSE;
+		decelerate();
 	}
 }
 
