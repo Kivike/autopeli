@@ -4,7 +4,7 @@
 int hiscores[5];
 
 int currentNameLocation = 0;
-int cursorLocation = 0;
+int cursorLocation = 1;
 int highscoreScreenUpdateCounter = 0;
 
 int nextUpdateCharUp = 0;
@@ -15,12 +15,13 @@ int nextUpdateCursorRight = 0;
 char hiscoresScreenTop[16];
 char hiscoresScreenBottom[16];
 
-char name[3];
+char name[4];
+char names[12];
 
 void highscoreScreenUpdater(){
 	highscoreScreenUpdateCounter++;
 
-	if(highscoreScreenUpdateCounter == 10){
+	if(highscoreScreenUpdateCounter == 50){
 		if(nextUpdateCharUp){
 			actionCharacterUp();
 		}
@@ -48,8 +49,34 @@ void highscoreScreenUpdater(){
 }
 
 void drawHighscorePage(){
-	sprintf(hiscoresScreenTop, "%sBBBCCCDDDEEEF", name);
-	strcpy(hiscoresScreenBottom,"QRSTUVWXYZ123456");	
+	//you might not understand what this is
+	//but it is glorius. the best bug fix in EU i'd say
+	//so embrace it
+	name[0] = 'A';
+
+	if(currentNameLocation = 0){
+		names[0] = name[1];
+		names[1] = name[2];
+		names[2] = name[3];
+	}
+	if(currentNameLocation = 1){
+		names[3] = name[1];
+		names[4] = name[2];
+		names[5] = name[3];
+	}
+	if(currentNameLocation = 2){
+		names[6] = name[1];
+		names[7] = name[2];
+		names[8] = name[3];
+	}
+	if(currentNameLocation = 3){
+		names[9] = name[1];
+		names[10] = name[2];
+		names[11] = name[3];
+	}
+
+	sprintf(hiscoresScreenTop, "%c%c%c %2d %c%c%c %2d   ", names[0], names[1], names[2], hiscores[0], names[3], names[4], names[5], hiscores[1]);
+	sprintf(hiscoresScreenBottom,"%c%c%c %2d %c%c%c %2d   ",names[6], names[7], names[8], hiscores[2], names[9], names[10], names[11], hiscores[3]);
 }
 
 void characterDown(){
@@ -80,14 +107,14 @@ void actionCharacterUp(){
 
 void actionCursorLeft(){
 	nextUpdateCursorLeft = FALSE;
-	if(cursorLocation != 0){
+	if(cursorLocation != 1){
 		cursorLocation--;
 	}
 }
 
 void actionCursorRight(){
 	nextUpdateCursorRight = FALSE;
-	if(cursorLocation != 2){
+	if(cursorLocation != 3){
 		cursorLocation++;
 	}
 }
@@ -97,13 +124,20 @@ void actionCursorRight(){
 void highscoresAfterGameOver(){
 
 	//read from memory
-	for(int i = 0; i < 5; i++){
-		hiscores[i] = EEPROM_read(i);
+	for(int i = 0; i < 12; i+=4){
+		hiscores[i / 4] = EEPROM_read(i);
+		names[i + 1] = EEPROM_read(i + 1);
+		names[i + 2] = EEPROM_read(i + 2);
+		names[i + 3] = EEPROM_read(i + 3);
 		//EEPROM values are initialized to 0xFF so turn them into score 0
-		if(hiscores[i] == 0xFF){
+		if(hiscores[i / 4] == 0xFF){
 			hiscores[i] = 0x00;
 		}
 	}
+	hiscores[5] = 0;
+	names[9] = 'A';
+	names[10] = 'A';
+	names[11] = 'A';
 
 	int score = (int)journeyCounter;
 
@@ -129,8 +163,21 @@ void highscoresAfterGameOver(){
 	}
 
 	//initialize name
-	for(int i = 0; i < 3; i++){
+	for(int i = 0; i < 4; i++){
 		name[i] = 'A';
+	}
+	
+	if(j + 1 == 0){
+		currentNameLocation = 0;
+	}
+	if(j + 1 == 0){
+		currentNameLocation = 1;
+	}
+	if(j + 1 == 0){
+		currentNameLocation = 2;
+	}
+	if(j + 1 == 0){
+		currentNameLocation = 3;
 	}
 
 	drawHighscorePage();
