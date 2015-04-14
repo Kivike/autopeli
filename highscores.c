@@ -16,7 +16,7 @@ char hiscoresScreenTop[16];
 char hiscoresScreenBottom[16];
 
 char name[4];
-char names[12];
+char names[16];
 
 void highscoreScreenUpdater(){
 	highscoreScreenUpdateCounter++;
@@ -24,20 +24,23 @@ void highscoreScreenUpdater(){
 	if(highscoreScreenUpdateCounter == 50){
 		if(nextUpdateCharUp){
 			actionCharacterUp();
-		}
-		if(nextUpdateCharDown){
+			updateMemory();
+		}else if(nextUpdateCharDown){
 			actionCharacterDown();
-		}
-		if(nextUpdateCursorLeft){
+			updateMemory();
+		}else if(nextUpdateCursorLeft){
 			actionCursorLeft();
-		}
-		if(nextUpdateCursorRight){
+			updateMemory();
+		}else if(nextUpdateCursorRight){
 			actionCursorRight();
+			updateMemory();
 		}
-
+			
 		drawHighscorePage();
-		highscoreScreenUpdateCounter = 0;
+		highscoreScreenUpdateCounter = 0;		
 	}
+
+	
 
 	for(int i = 0; i < 40; i++){
 		lcd_write_data(hiscoresScreenTop[i]);	
@@ -48,6 +51,15 @@ void highscoreScreenUpdater(){
 	}
 }
 
+void updateMemory(){
+	for(int i = 0; i < 4; i++){
+		EEPROM_write(i * 4, hiscores[i]);
+		EEPROM_write(i * 4 + 1, names[i * 3 + 1]);
+		EEPROM_write(i * 4 + 2, names[i * 3 + 2]);
+		EEPROM_write(i * 4 + 3, names[i * 3 + 3]);
+	}
+}
+
 void drawHighscorePage(){
 	//you might not understand what this is
 	//but it is glorius. the best bug fix in EU i'd say
@@ -55,28 +67,25 @@ void drawHighscorePage(){
 	name[0] = 'A';
 
 	if(currentNameLocation = 0){
-		names[0] = name[1];
-		names[1] = name[2];
-		names[2] = name[3];
-	}
-	if(currentNameLocation = 1){
-		names[3] = name[1];
-		names[4] = name[2];
-		names[5] = name[3];
-	}
-	if(currentNameLocation = 2){
-		names[6] = name[1];
-		names[7] = name[2];
-		names[8] = name[3];
-	}
-	if(currentNameLocation = 3){
+		names[1] = name[1];
+		names[2] = name[2];
+		names[3] = name[3];
+	}else if(currentNameLocation = 1){
+		names[5] = name[1];
+		names[6] = name[2];
+		names[7] = name[3];
+	}else if(currentNameLocation = 2){
 		names[9] = name[1];
 		names[10] = name[2];
 		names[11] = name[3];
+	}else if(currentNameLocation = 3){
+		names[13] = name[1];
+		names[14] = name[2];
+		names[15] = name[3];
 	}
 
-	sprintf(hiscoresScreenTop, "%c%c%c %2d %c%c%c %2d   ", names[0], names[1], names[2], hiscores[0], names[3], names[4], names[5], hiscores[1]);
-	sprintf(hiscoresScreenBottom,"%c%c%c %2d %c%c%c %2d   ",names[6], names[7], names[8], hiscores[2], names[9], names[10], names[11], hiscores[3]);
+	sprintf(hiscoresScreenTop, "%c%c%c %2d %c%c%c %2d   ", names[1], names[2], names[3], hiscores[0], names[5], names[6], names[7], hiscores[1]);
+	sprintf(hiscoresScreenBottom,"%c%c%c %2d %c%c%c %2d   ",names[9], names[10], names[11], hiscores[2], names[13], names[14], names[15], hiscores[3]);
 }
 
 void characterDown(){
@@ -98,11 +107,17 @@ void cursorRight(){
 void actionCharacterDown(){
 	nextUpdateCharDown = FALSE;
 	name[cursorLocation] = name[cursorLocation] - 1;
+	if(name[cursorLocation] == 0x40){
+		name[cursorLocation] = 0x5A;
+	}
 }
 
 void actionCharacterUp(){
 	nextUpdateCharUp = FALSE;
 	name[cursorLocation] = name[cursorLocation] + 1;
+	if(name[cursorLocation] == 0x5B){
+		name[cursorLocation] = 0x41;
+	}
 }
 
 void actionCursorLeft(){
@@ -129,9 +144,14 @@ void highscoresAfterGameOver(){
 		names[i + 1] = EEPROM_read(i + 1);
 		names[i + 2] = EEPROM_read(i + 2);
 		names[i + 3] = EEPROM_read(i + 3);
-		//EEPROM values are initialized to 0xFF so turn them into score 0
+		//EEPROM values are initialized to 0xFF or 0x00 so make them valid
 		if(hiscores[i / 4] == 0xFF){
-			hiscores[i] = 0x00;
+			hiscores[i / 4] = 0x00;
+		}
+		for(int j = 1; j < 4; j++){
+			if(names[i + j] == 0xFF || names[i + j] == 0x00){
+				names[i + j] = 'A';
+			}
 		}
 	}
 	hiscores[5] = 0;
@@ -158,8 +178,11 @@ void highscoresAfterGameOver(){
 	hiscores[j + 1] = score;
 
 	//write to memory
-	for(int i = 0; i < 5; i++){
-		EEPROM_write(i, hiscores[i]);
+	for(int i = 0; i < 4; i++){
+		EEPROM_write(i * 4, hiscores[i]);
+		EEPROM_write(i * 4 + 1, names[i * 3]);
+		EEPROM_write(i * 4 + 2, names[i * 3 + 1]);
+		EEPROM_write(i * 4 + 3, names[i * 3 + 2]);
 	}
 
 	//initialize name
@@ -167,18 +190,7 @@ void highscoresAfterGameOver(){
 		name[i] = 'A';
 	}
 	
-	if(j + 1 == 0){
-		currentNameLocation = 0;
-	}
-	if(j + 1 == 0){
-		currentNameLocation = 1;
-	}
-	if(j + 1 == 0){
-		currentNameLocation = 2;
-	}
-	if(j + 1 == 0){
-		currentNameLocation = 3;
-	}
+	currentNameLocation = j + i;
 
 	drawHighscorePage();
 }
