@@ -35,7 +35,7 @@ unsigned char EEPROM_read(unsigned int uiAddress)
  
 /* Wait for completion of previous write */
  
-while(EECR & (1<<eewe));
+while(EECR & (1<<EEWE));
  
 /* Set up address register */
  
@@ -43,7 +43,7 @@ EEAR = uiAddress;
  
 /* Start eeprom read by writing EERE */
  
-EECR |= (1<<eere);
+EECR |= (1<<EERE);
  
 /* Return data from data register */
  

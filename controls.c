@@ -44,9 +44,34 @@ void checkInput() {
 }
 
 void checkInputInGameOver(){
+    if (PINA & (1 << PA0)) {
+        // Nappia 0 ei paineta
+    } else {
+       	characterUp(); // Nappia 0 painetaan
+    }
+
+	if (PINA & (1 << PA1)) {
+       	// Nappia 1 ei paineta
+    } else { 
+		// Nappia 1 painetaan
+		cursorLeft();
+    }
+
     if (PINA & (1 << PA2)) {
         // Nappia 2 ei paineta
     } else {
         resetGame();// Nappia 2 painetaan
+    }
+
+    if (PINA & (1 << PA3)) {
+        // Nappia 2 ei paineta
+    } else {
+       cursorRight(); // Nappia 2 painetaan
+    }
+
+	if (PINA & (1 << PA4)) {
+        // Nappia 4 ei paineta
+    } else {
+        characterDown();// Nappia 4 painetaan
     }
 }

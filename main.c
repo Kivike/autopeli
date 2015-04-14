@@ -45,6 +45,7 @@ void init(void) {
 
 }
 
+int repeat = 0;
 int main(void)
 {
 
@@ -57,11 +58,16 @@ int main(void)
 		_delay_ms(10);
 		
 		if(!gameIsOver()){
+			repeat = 0;
        		checkInput();
 			update();
 		}else{
-			gameOverWithScore();
-			//checkInputInGameOver();
+			if(repeat == 0){	
+				highscoresAfterGameOver();
+				repeat = 1;
+			}
+			highscoreScreenUpdater();
+			checkInputInGameOver();
 		}
 	}
 }

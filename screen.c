@@ -2,9 +2,6 @@
 #include "memory.h"
 #include <util/delay.h>
 
-const int FALSE = 0;
-const int TRUE = 1;
-
 char screenTop[16];
 char screenBottom[16];
 
@@ -142,7 +139,7 @@ void updateScreen(){
 
 	landJumpingCar();
 
-	screenTop[0] = (((i t)'0')+((int)journeyCounter % 100 / 10));
+	screenTop[0] = (((int)'0')+((int)journeyCounter % 100 / 10));
 	screenTop[1] = (((int)'0')+((int)journeyCounter % 10));
 
 	for(i = 0; i < 40; i++){
