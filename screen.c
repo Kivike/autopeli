@@ -152,18 +152,23 @@ void updateScreen(){
 }
 
 void landJumpingCar(){
+	timeInAir++;
 	if(screenTop[15] == FLYING){
-		timeInAir++;
 		if(timeInAir >= jumpLength){
 			screenTop[15] = PLAYER;
+			//sets jump on cooldown
+			timeInAir = -2;
 		}	
-	}
-
-	if(screenBottom[15] == FLYING){
-		timeInAir++;
+	}else if(screenBottom[15] == FLYING){
 		if(timeInAir >= jumpLength){
 			screenBottom[15] = PLAYER;
-		}	
+			//sets jump on cooldown
+			timeInAir = -2;
+		}
+	}else if(timeInAir < 0){
+		//it's counting cooldown
+	}else{
+		timeInAir = 0;
 	}
 }
 
