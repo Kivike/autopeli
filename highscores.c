@@ -16,7 +16,7 @@ char hiscoresScreenTop[16];
 char hiscoresScreenBottom[16];
 
 char name[4];
-char names[16];
+char names[20];
 
 void highscoreScreenUpdater(){
 	highscoreScreenUpdateCounter++;
@@ -40,8 +40,6 @@ void highscoreScreenUpdater(){
 		highscoreScreenUpdateCounter = 0;		
 	}
 
-	
-
 	for(int i = 0; i < 40; i++){
 		lcd_write_data(hiscoresScreenTop[i]);	
 	}	
@@ -52,12 +50,12 @@ void highscoreScreenUpdater(){
 }
 
 void updateMemory(){
-	for(int i = 0; i < 4; i++){
-		EEPROM_write(i * 4, hiscores[i]);
-		EEPROM_write(i * 4 + 1, names[i * 3 + 1]);
-		EEPROM_write(i * 4 + 2, names[i * 3 + 2]);
-		EEPROM_write(i * 4 + 3, names[i * 3 + 3]);
-	}
+/*	for(int i = 0; i <= 12; i+=4){
+		EEPROM_write(i, hiscores[i / 4]);
+		EEPROM_write(i + 1, names[i + 1]);
+		EEPROM_write(i + 2, names[i + 2]);
+		EEPROM_write(i + 3, names[i + 3]);
+	}*/
 }
 
 void drawHighscorePage(){
@@ -83,9 +81,8 @@ void drawHighscorePage(){
 		names[14] = name[2];
 		names[15] = name[3];
 	}
-
 	sprintf(hiscoresScreenTop, "%c%c%c %2d %c%c%c %2d   ", names[1], names[2], names[3], hiscores[0], names[5], names[6], names[7], hiscores[1]);
-	sprintf(hiscoresScreenBottom,"%c%c%c %2d %c%c%c %2d   ",names[9], names[10], names[11], hiscores[2], names[13], names[14], names[15], hiscores[3]);
+	sprintf(hiscoresScreenBottom,"%c%c%c %2d %c%c%c %2d   ",names[9], names[10], names[11], hiscores[2], names[13], names[14], names[15], /*hiscores[3]*/(int)journeyCounter);
 }
 
 void characterDown(){
@@ -139,11 +136,11 @@ void actionCursorRight(){
 void highscoresAfterGameOver(){
 
 	//read from memory
-	for(int i = 0; i < 12; i+=4){
-		hiscores[i / 4] = EEPROM_read(i);
-		names[i + 1] = EEPROM_read(i + 1);
-		names[i + 2] = EEPROM_read(i + 2);
-		names[i + 3] = EEPROM_read(i + 3);
+	for(int i = 0; i <= 12; i+=4){
+		hiscores[i / 4] = (char)EEPROM_read(i);
+		names[i + 1] = (char)EEPROM_read(i + 1);
+		names[i + 2] = (char)EEPROM_read(i + 2);
+		names[i + 3] = (char)EEPROM_read(i + 3);
 		//EEPROM values are initialized to 0xFF or 0x00 so make them valid
 		if(hiscores[i / 4] == 0xFF){
 			hiscores[i / 4] = 0x00;
@@ -155,42 +152,40 @@ void highscoresAfterGameOver(){
 		}
 	}
 	hiscores[5] = 0;
-	names[9] = 'A';
-	names[10] = 'A';
-	names[11] = 'A';
+	names[17] = 'A';
+	names[18] = 'A';
+	names[19] = 'A';
 
 	int score = (int)journeyCounter;
 
 	//check how many times score passes hiscores
-	int i = 3;
-	while(score > hiscores[i]){
-		i--;
+	int i = 0;
+	while(score < hiscores[i]){
+		i++;
 	}
 
 	//push up the rest
-	int j = 3;
-	while(j > i){
+	int j = i;
+	for(int j = 4; j > i; j--){
 		hiscores[j + 1] = hiscores[j];
-		j--;
+		names[j * 4 + 5] = names[j * 4 + 1];
+		names[j * 4 + 6] = names[j * 4 + 2];
+		names[j * 4 + 7] = names[j * 4 + 3];
 	}
 
 	//input score
-	hiscores[j + 1] = score;
-
-	//write to memory
-	for(int i = 0; i < 4; i++){
-		EEPROM_write(i * 4, hiscores[i]);
-		EEPROM_write(i * 4 + 1, names[i * 3]);
-		EEPROM_write(i * 4 + 2, names[i * 3 + 1]);
-		EEPROM_write(i * 4 + 3, names[i * 3 + 2]);
-	}
+	hiscores[i] = score;
 
 	//initialize name
 	for(int i = 0; i < 4; i++){
 		name[i] = 'A';
 	}
-	
-	currentNameLocation = j + i;
+
+	//write to memory
+	updateMemory();
+
+	currentNameLocation = i;
 
 	drawHighscorePage();
+	
 }

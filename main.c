@@ -46,8 +46,7 @@ void init(void) {
 }
 
 int repeat = 0;
-int main(void)
-{
+int main(void){
 
 	/* alusta laitteen komponentit */
 	init();
