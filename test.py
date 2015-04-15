@@ -23,7 +23,7 @@ while True:
 		i+=1
 	
 	j = 4
-	while j > 1:
+	while j >= 1:
 		hiscores[j] = hiscores[j - 1]
 		names[j * 4 + 1] = names[(j - 1) * 4 + 1]
 		names[j * 4 + 2] = names[(j - 1) * 4 + 2]

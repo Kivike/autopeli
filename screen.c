@@ -124,6 +124,7 @@ update(){
 }
 
 void everySecondUpdate(){
+	//What happens every second
 	moveCars(FAST_CAR);
 	moveCars(CAR);	
 	generateCars();	
@@ -152,6 +153,7 @@ void updateScreen(){
 }
 
 void landJumpingCar(){
+	//Gravity for jumping car
 	timeInAir--;
 	if(screenTop[15] == FLYING){
 		if(timeInAir <= 0){
@@ -171,7 +173,6 @@ void moveRight(){
 		screenTop[15] = PLAYER;
 		screenBottom[15] = ' ';
 	}
-
 }
 
 void moveLeft(){
@@ -296,6 +297,8 @@ void changeAcceleration(){
 }
 
 void jump(){
+	
+	//Prevent player from spamming jump
 	if(timeInAir <= -2){
 		if(screenTop[15] == PLAYER){
 			screenTop[15] = FLYING;

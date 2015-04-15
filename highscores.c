@@ -50,6 +50,7 @@ void highscoreScreenUpdater(){
 }
 
 void updateMemory(){
+	//Write updated highscore list to EEPROM
 	for(int i = 0; i <= 12; i+=4){
 		EEPROM_write(i, hiscores[i / 4 + 1]);
 		EEPROM_write(i + 1, names[i + 1]);
