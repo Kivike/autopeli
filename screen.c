@@ -152,23 +152,17 @@ void updateScreen(){
 }
 
 void landJumpingCar(){
-	timeInAir++;
+	timeInAir--;
 	if(screenTop[15] == FLYING){
-		if(timeInAir >= jumpLength){
+		if(timeInAir <= 0){
 			screenTop[15] = PLAYER;
-			//sets jump on cooldown
-			timeInAir = -2;
 		}	
 	}else if(screenBottom[15] == FLYING){
-		if(timeInAir >= jumpLength){
+		if(timeInAir <= 0){
 			screenBottom[15] = PLAYER;
-			//sets jump on cooldown
-			timeInAir = -2;
 		}
-	}else if(timeInAir < 0){
-		//it's counting cooldown
-	}else{
-		timeInAir = 0;
+	}else if(timeInAir < 10){
+		timeInAir = -2;
 	}
 }
 
@@ -302,15 +296,17 @@ void changeAcceleration(){
 }
 
 void jump(){
-	if(screenTop[15] == PLAYER){
-		screenTop[15] = FLYING;
-	}
+	if(timeInAir <= -2){
+		if(screenTop[15] == PLAYER){
+			screenTop[15] = FLYING;
+		}
 	
-	if(screenBottom[15] == PLAYER){
-		screenBottom[15] = FLYING;
-	}
+		if(screenBottom[15] == PLAYER){
+			screenBottom[15] = FLYING;
+		}
 
-	timeInAir = 0;
+		timeInAir = jumpLength;
+	}
 }
 
 void gameOver(){
