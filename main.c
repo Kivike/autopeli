@@ -1,7 +1,24 @@
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "lcd.h"
+#include "player.h"
+#include "screen.h"
+#include "boolean.h"
+#include "update.h"
+#include "input.h"
+#include "carController.h"
+#include "highscores.h"
+
+
+int gameIsOver;
+int menuIsOpen;
+int hiscoresOpened = FALSE;
+
+int updateCounter = 0;
+const int nthUpdateInit = 2000;
+int nthUpdate = 0;
 
 void init(void) {
 
@@ -43,32 +60,82 @@ void init(void) {
 		lcd_write_ctrl(LCD_ON);
 		lcd_write_ctrl(LCD_CLEAR);
 
+		gameIsOver = TRUE;
+		menuIsOpen = TRUE;
+		nthUpdate = nthUpdateInit;
+
 }
 
-int repeat = 0;
+void everySecondUpdate(){
+	//The repeating actions 2 times in loop
+	moveCars(FAST_CAR);
+	moveCars(CAR);	
+	generateCars();	
+	changeAcceleration();
+}
+
+void update(){
+	updateCounter++;
+
+	int updateStep = nthUpdate - acceleration;
+	
+	//so you cant accelerate past 0 steps and go over the 
+	if(updateStep < 10) updateStep = 10;
+
+	if(updateCounter == updateStep / 4){
+		moveCars(FAST_CAR);
+		updateScreen();
+	}
+	if(updateCounter == updateStep / 2){
+		everySecondUpdate();
+		updateScreen();
+		//makes sure you don't step over with accelerating
+	}
+	if(updateCounter >= updateStep){
+		everySecondUpdate();
+		moveCars(RUBBLE);
+		updateCounter = 0;
+		updateScreen();	
+	}
+}
+
 int main(void){
 
 	/* alusta laitteen komponentit */
 	init();
 	initializeScreen();
-
+	
     /* ikuinen silmukka */
     while (1) {
 		_delay_ms(10);
 		
-		if(!gameIsOver()){
-			repeat = 0;
-       		checkInput();
-			update();
+		if(menuIsOpen){
+			updateMenu();
+			checkInputInMenu();
 		}else{
-			if(repeat == 0){	
-				highscoresAfterGameOver();
-				repeat = 1;
+			if(!gameIsOver){
+				hiscoresOpened = FALSE;
+	       		checkInput();
+				update();
+			}else{
+				if(hiscoresOpened == FALSE){	
+					highscoresAfterGameOver();
+					hiscoresOpened = TRUE;
+				}
+				highscoreScreenUpdater();
+				checkInputInGameOver();
 			}
-			highscoreScreenUpdater();
-			checkInputInGameOver();
 		}
 	}
+
+	return 0;
+}
+
+void resetGame(){
+	initializeScreen();
+	journeyCounter = 0;
+	gameIsOver = FALSE;
+	nthUpdate = nthUpdateInit;
 }
 
 ISR(TIMER1_COMPA_vect) {
