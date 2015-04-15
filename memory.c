@@ -2,6 +2,7 @@
 
 #include <avr/io.h>
 #include "memory.h"
+#include "input.h"
 
 
 void EEPROM_write(unsigned int uiAddress, unsigned char ucData)

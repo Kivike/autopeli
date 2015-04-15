@@ -1,5 +1,8 @@
+#include <stdio.h>
 #include "lcd.h"
 #include "memory.h"
+#include "boolean.h"
+#include "update.h"
 
 int hiscores[6];
 
@@ -17,42 +20,6 @@ char hiscoresScreenBottom[16];
 
 char name[4];
 char names[20];
-
-void highscoreScreenUpdater(){
-	highscoreScreenUpdateCounter++;
-
-	if(highscoreScreenUpdateCounter == 50){
-		if(nextUpdateCharUp){
-			actionCharacterUp();
-		}else if(nextUpdateCharDown){
-			actionCharacterDown();
-		}else if(nextUpdateCursorLeft){
-			actionCursorLeft();
-		}else if(nextUpdateCursorRight){
-			actionCursorRight();
-		}
-			
-		drawHighscorePage();
-		highscoreScreenUpdateCounter = 0;		
-	}
-
-	for(int i = 0; i < 40; i++){
-		lcd_write_data(hiscoresScreenTop[i]);	
-	}	
-
-	for(int i = 0; i < 40; i++){
-		lcd_write_data(hiscoresScreenBottom[i]);
-	}
-}
-
-void updateMemory(){
-	for(int i = 0; i <= 12; i+=4){
-		EEPROM_write(i, hiscores[i / 4 + 1]);
-		EEPROM_write(i + 1, names[i + 1]);
-		EEPROM_write(i + 2, names[i + 2]);
-		EEPROM_write(i + 3, names[i + 3]);
-	}
-}
 
 void drawHighscorePage(){
 	//you might not understand what this is
@@ -79,22 +46,6 @@ void drawHighscorePage(){
 	}
 	sprintf(hiscoresScreenTop, "%c%c%c %2d %c%c%c %2d   ", names[1], names[2], names[3], hiscores[1], names[5], names[6], names[7], hiscores[2]);
 	sprintf(hiscoresScreenBottom,"%c%c%c %2d %c%c%c %2d   ",names[9], names[10], names[11], hiscores[3], names[13], names[14], names[15], hiscores[4]);
-}
-
-void characterDown(){
-	nextUpdateCharDown = TRUE;
-}
-
-void characterUp(){
-	nextUpdateCharUp = TRUE;
-}
-
-void cursorLeft(){
-	nextUpdateCursorLeft = TRUE;
-}
-
-void cursorRight(){
-	nextUpdateCursorRight = TRUE;
 }
 
 void actionCharacterDown(){
@@ -127,7 +78,58 @@ void actionCursorRight(){
 	}
 }
 
+void highscoreScreenUpdater(){
+	highscoreScreenUpdateCounter++;
 
+	if(highscoreScreenUpdateCounter == 100){
+		if(nextUpdateCharUp){
+			actionCharacterUp();
+		}else if(nextUpdateCharDown){
+			actionCharacterDown();
+		}else if(nextUpdateCursorLeft){
+			actionCursorLeft();
+		}else if(nextUpdateCursorRight){
+			actionCursorRight();
+		}
+			
+		drawHighscorePage();
+		highscoreScreenUpdateCounter = 0;		
+	}
+
+	for(int i = 0; i < 40; i++){
+		lcd_write_data(hiscoresScreenTop[i]);	
+	}	
+
+	for(int i = 0; i < 40; i++){
+		lcd_write_data(hiscoresScreenBottom[i]);
+	}
+}
+
+void updateMemory(){
+	//Write updated highscore list to EEPROM
+	for(int i = 0; i <= 12; i+=4){
+		EEPROM_write(i, hiscores[i / 4 + 1]);
+		EEPROM_write(i + 1, names[i + 1]);
+		EEPROM_write(i + 2, names[i + 2]);
+		EEPROM_write(i + 3, names[i + 3]);
+	}
+}
+
+void characterDown(){
+	nextUpdateCharDown = TRUE;
+}
+
+void characterUp(){
+	nextUpdateCharUp = TRUE;
+}
+
+void cursorLeft(){
+	nextUpdateCursorLeft = TRUE;
+}
+
+void cursorRight(){
+	nextUpdateCursorRight = TRUE;
+}
 
 void highscoresAfterGameOver(){
 
@@ -176,6 +178,32 @@ void highscoresAfterGameOver(){
 	updateMemory();
 
 	currentNameLocation = i - 1;
+
+	drawHighscorePage();
+	
+}
+
+void highscoresFromMenu(){
+
+	//read from memory
+	for(int i = 0; i <= 12; i+=4){
+		hiscores[i / 4 + 1] = (char)EEPROM_read(i);
+		names[i + 1] = (char)EEPROM_read(i + 1);
+		names[i + 2] = (char)EEPROM_read(i + 2);
+		names[i + 3] = (char)EEPROM_read(i + 3);
+		//EEPROM values are initialized to 0xFF or 0x00 so make them valid
+		if(hiscores[i / 4 + 1] == 0xFF){
+			hiscores[i / 4 + 1] = 0x00;
+		}
+		for(int j = 1; j < 4; j++){
+			if(names[i + j] == 0xFF || names[i + j] == 0x00){
+				names[i + j] = 'A';
+			}
+		}
+	}
+
+	//so nothing
+	currentNameLocation = 4;
 
 	drawHighscorePage();
 	

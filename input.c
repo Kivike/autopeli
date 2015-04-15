@@ -1,6 +1,11 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-//#include "lcd.h"
+#include <stdlib.h>
+#include "highscores.h"
+#include "player.h"
+#include "boolean.h"
+#include "screen.h"
+#include "update.h"
 
 /*
 DDRA
@@ -61,7 +66,7 @@ void checkInputInGameOver(){
         // Nappia 2 ei paineta
     } else {
 		updateMemory();
-        resetGame();// Nappia 2 painetaan
+        menuIsOpen = TRUE;// Nappia 2 painetaan
     }
 
     if (PINA & (1 << PA3)) {
@@ -74,5 +79,33 @@ void checkInputInGameOver(){
         // Nappia 4 ei paineta
     } else {
         characterDown();// Nappia 4 painetaan
+    }
+}
+
+void checkInputInMenu(){
+    if (PINA & (1 << PA0)) {
+        // Nappia 0 ei paineta
+    } else {
+       	selection = 0; // Nappia 0 painetaan
+    }
+
+    if (PINA & (1 << PA2)) {
+        // Nappia 2 ei paineta
+    } else {
+		if(selection == 0){ // Nappia 2 painetaan
+			//creates the seed
+			srand(menuUpdateCounter);
+			menuIsOpen = FALSE;
+			resetGame();
+		}else{
+			highscoresFromMenu();
+			menuIsOpen = FALSE;
+		}
+    }
+
+	if (PINA & (1 << PA4)) {
+        // Nappia 4 ei paineta
+    } else {
+        selection = 1;// Nappia 4 painetaan
     }
 }
