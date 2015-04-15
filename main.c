@@ -1,4 +1,3 @@
-
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
@@ -11,6 +10,7 @@
 #include "carController.h"
 #include "highscores.h"
 
+//Peetu Nuottajärvi ja Roope Rajala
 
 int gameIsOver;
 int menuIsOpen;
