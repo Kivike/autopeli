@@ -258,17 +258,17 @@ void moveCars(char car){
 }
 
 void accelerate(){
-	acceleration+=100;
+	acceleration+=200;
 
 	//so accelerating doesn't skip events.
-	updateCounter-=100;
+	updateCounter-=200;
 }
 
 void decelerate(){
-	if(acceleration >= 100){
-		acceleration-=100;
+	if(acceleration >= 200){
+		acceleration-=200;
 		//so accelerating doesn't skip events.
-		updateCounter+=100;
+		updateCounter+=200;
 	}else{
 		//so accelerating doesn't skip events.
 		updateCounter+=acceleration;
