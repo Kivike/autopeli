@@ -24,16 +24,12 @@ void highscoreScreenUpdater(){
 	if(highscoreScreenUpdateCounter == 50){
 		if(nextUpdateCharUp){
 			actionCharacterUp();
-			updateMemory();
 		}else if(nextUpdateCharDown){
 			actionCharacterDown();
-			updateMemory();
 		}else if(nextUpdateCursorLeft){
 			actionCursorLeft();
-			updateMemory();
 		}else if(nextUpdateCursorRight){
 			actionCursorRight();
-			updateMemory();
 		}
 			
 		drawHighscorePage();
@@ -162,7 +158,7 @@ void highscoresAfterGameOver(){
 	}
 
 	//push up the rest
-	for(int j = 4; j > i; j--){
+	for(int j = 4; j >= i; j--){
 		hiscores[j] = hiscores[j - 1];
 		names[j * 4 + 1] = names[(j - 1) * 4 + 1];
 		names[j * 4 + 2] = names[(j - 1) * 4 + 2];

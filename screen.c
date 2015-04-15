@@ -96,6 +96,8 @@ void initializeScreen(){
 	lcd_write_ctrl(0x80);
 
 
+	//PUT PLAYER ON SCREEN
+	screenTop[15] = PLAYER;
 }
 
 update(){
