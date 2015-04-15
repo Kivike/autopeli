@@ -60,6 +60,7 @@ void checkInputInGameOver(){
     if (PINA & (1 << PA2)) {
         // Nappia 2 ei paineta
     } else {
+		updateMemory();
         resetGame();// Nappia 2 painetaan
     }
 
